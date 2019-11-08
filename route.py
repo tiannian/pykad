@@ -71,7 +71,7 @@ class RouteTable:
                 return index
 
     def __str__(self):
-        strs = "\n".join([ str(k) + '\n' + str(v) for k, v in enumerate(self._buckets)])
+        strs = "\n".join(['KBucket index is:%s, prefix is: %d' % ( str(k), v.prefix() )+ '\n' + str(v) for k, v in enumerate(self._buckets)])
         return strs
 
 if __name__ == '__main__':
