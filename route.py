@@ -1,5 +1,6 @@
 from utils import LRU
 import node
+import utils
 
 class KBucket:
     def __init__(self, lower, upper, size):
@@ -25,36 +26,64 @@ class KBucket:
             bucket._nodes[node.id] = node
         return (one, two)
 
+    def hasInRange(self, node):
+        return self.range[0] <= node.id <= self.range[1]
+
+    def isFull(self):
+        return len(self._nodes) == self.size
+
+    def getBucketFor(self, node):
+        return node.id < self.range[1]
+
+    def prefix(self):
+        return utils.prefix(self._nodes.keys())
+
+    def __str__(self):
+        strs = "\n".join([str(n) for n in self.getNodes()])
+        return strs +'\n'
+
 class RouteTable:
-    def __init__():
-        pass
+    def __init__(self, bucket_size, this):
+        self._buckets = [KBucket(node.Node.min_nodeid, node.Node.max_nodeid, bucket_size)]
+        self._this = this
+
+    def addNode(self, node):
+        index = self.getBucketFor(node)
+        bucket = self._buckets[index]
+
+        if not bucket.isFull():
+            bucket.addNode(node)
+        elif bucket.getBucketFor(self._this):
+            one, two = bucket.split()
+            if one.getBucketFor(node):
+                one.addNode(node)
+            else:
+                two.addNode(node)
+            self._buckets[index] = one
+            self._buckets.insert(index + 1, two)
+        else:
+            # test node online
+            pass
+
+    def getBucketFor(self, node):
+        for index, bucket in enumerate(self._buckets):
+            if bucket.getBucketFor(node):
+                return index
+
+    def __str__(self):
+        strs = "\n".join([ str(k) + '\n' + str(v) for k, v in enumerate(self._buckets)])
+        return strs
 
 if __name__ == '__main__':
-    kbucket = KBucket(node.Node.min_nodeid, node.Node.max_nodeid, 4)
+    this = node.Node.this('config.json', 'localhost', 12345)
+    print(this)
 
-    node1 = node.newNode()
-    kbucket.addNode(node1)
+    table = RouteTable(20, this)
 
-    node1 = node.newNode()
-    kbucket.addNode(node1)
+    for _ in range(100):
+        node1 = node.newNode()
+        table.addNode(node1)
 
-    node1 = node.newNode()
-    kbucket.addNode(node1)
+    print(table)
 
-    node1 = node.newNode()
-    kbucket.addNode(node1)
-
-    for n in kbucket.getNodes():
-        print(n)
-    print("----------------------")
-
-    (one, two) = kbucket.split()
-
-    for n in one.getNodes():
-        print(n)
-    
-    print("----------------------")
-
-    for n in two.getNodes():
-        print(n)
 

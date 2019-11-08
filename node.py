@@ -29,6 +29,10 @@ class Node:
         self.address = str(_address)
         self.port = int(_port)
 
+    @staticmethod
+    def this(path, address, port):
+        return Node(loadID(path), address, port)
+
     def distance(self, node):
         return self._id ^ node._id
 

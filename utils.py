@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import operator
 
 class LRU(OrderedDict):
     'Limit size, evicting the least recently looked-up key when full'
@@ -17,3 +18,21 @@ class LRU(OrderedDict):
         if len(self) > self.maxsize:
             oldest = next(iter(self))
             del self[oldest]
+
+def to_bit_string(i):
+    return bin(i)[2:].rjust(160, '0')
+
+def shared_prefix(args):
+    i = 0
+    while i < min(map(len, args)):
+        if len(set(map(operator.itemgetter(i), args))) != 1:
+            break
+        i += 1
+    return args[0][:i]
+
+def prefix(nums):
+    return len(shared_prefix([to_bit_string(i) for i in nums]))
+
+if __name__ == '__main__':
+    print(prefix([0xAC07,0xFFFFFFFFFFFFFFFF]))
+
